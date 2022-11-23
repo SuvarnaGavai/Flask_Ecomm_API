@@ -73,27 +73,45 @@ def get_all_product(current_user):
 
 @product_blueprint.route('/product/<product_id>', methods=['GET'])
 @token_required
-def get_one_product(current_user,product_id):  
-    products = Product.query.filter_by(id=product_id).first()
+def get_one_product(current_user,product_id): 
     product_schema = ProductSchema()
-    output = product_schema.dump(products)
-
+    product=None
+    if redis_cache.exists(PRODUCTS_LIST):  
+        print(product_id)    
+        products = redis_cache.get(PRODUCTS_LIST)
+        products = literal_eval(products.decode('utf8'))
+        product = next((x for x in products if str(x["id"])==str(product_id)),None)
+    
+    else :
+        product = Product.query.filter_by(id=product_id).first()
+        
+    output = product_schema.dump(product)
     return jsonify({'product': output})
 
 
 @product_blueprint.route('/product/category/<category_id>', methods=['GET'])
 @token_required
 def get_category_product(current_user,category_id):  
-    products = Product.query.filter_by(category=category_id).all()
-    product_schema = ProductSchema(many=True)
-    output = product_schema.dump(products)
-
+    product_schema = ProductSchema()
+    product=None
+    if redis_cache.exists(PRODUCTS_LIST):  
+        print(category_id)    
+        products = redis_cache.get(PRODUCTS_LIST)
+        products = literal_eval(products.decode('utf8'))
+        product = next((x for x in products if str(x["id"])==str(category_id)),None)
+    
+    else :
+        product = Product.query.filter_by(id=category_id).first()
+        
+    output = product_schema.dump(product)
     return jsonify({'products': output})
-
+    
+    
 
 @product_blueprint.route('/product/<id>', methods=['DELETE'])
 @token_required
 def delete_product(current_user, id):
+    
     if not current_user.is_admin:
         return jsonify({'message': 'User is Not Admin !! Cannot perform that function!'})
 
