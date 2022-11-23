@@ -1,0 +1,11 @@
+{
+    "git.ignoreLimitWarning": true,
+    "python.analysis.extraPaths": [
+        "./Ecomm_Backend",
+        "./Ecomm_Backend/auth",
+        "./Ecomm_Backend",
+        "./Ecomm_Backend",
+        "./Ecomm_Backend",
+        "./Ecomm_Backend"
+    ]
+}
